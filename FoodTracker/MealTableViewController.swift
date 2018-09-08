@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import os.log
 
 class MealTableViewController: UITableViewController {
   
@@ -16,9 +17,18 @@ class MealTableViewController: UITableViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
-      // Load the sample data.
-      loadSampleMeals()
+      
+      // Use the edit button item provided by the table view controller.
+      ///This code creates a special type of bar button item that has editing behavior built into it. It then adds this button to the left side of the navigation bar in the meal list scene
+      navigationItem.leftBarButtonItem = editButtonItem
+      // Load any saved meals, otherwise load sample data.
+      if let savedMeals = loadMeals() {
+        meals += savedMeals
+      }
+      else {
+        // Load the sample data.
+        loadSampleMeals()
+      }
     }
 
     override func didReceiveMemoryWarning() {
@@ -58,25 +68,30 @@ class MealTableViewController: UITableViewController {
     }
  
 
-    /*
+  
     // Override to support conditional editing of the table view.
     override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the specified item to be editable.
         return true
     }
-    */
+ 
 
-    /*
+  
     // Override to support editing the table view.
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             // Delete the row from the data source
+          ///This code removes the Meal object to be deleted from meals.
+            meals.remove(at: indexPath.row)
+          ///This code saves the meals array whenever a meal is deleted.
+            saveMeals()
+          ///is part of the template implementation, deletes the corresponding row from the table view
             tableView.deleteRows(at: [indexPath], with: .fade)
         } else if editingStyle == .insert {
             // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
         }    
     }
-    */
+  
 
     /*
     // Override to support rearranging the table view.
@@ -93,25 +108,58 @@ class MealTableViewController: UITableViewController {
     }
     */
 
-    /*
+  
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+      super.prepare(for: segue, sender: sender)
+   
+      switch(segue.identifier ?? "") {
+        
+      case "AddItem":
+        os_log("Adding a new meal.", log: OSLog.default, type: .debug)
+        
+      case "ShowDetail":
+        guard let mealDetailViewController = segue.destination as? MealViewController else {
+          fatalError("Unexpected destination: \(segue.destination)")
+        }
+        
+        guard let selectedMealCell = sender as? MealTableViewCell else {
+          fatalError("Unexpected sender: \(sender)")
+        }
+        
+        guard let indexPath = tableView.indexPath(for: selectedMealCell) else {
+          fatalError("The selected cell is not being displayed by the table")
+        }
+        
+        let selectedMeal = meals[indexPath.row]
+        mealDetailViewController.meal = selectedMeal
+        
+      default:
+        fatalError("Unexpected Segue Identifier; \(segue.identifier)")
+      }
     }
-    */
+ 
   
   //MARK: Actions
   @IBAction func unwindToMealList(sender: UIStoryboardSegue) {
     if let sourceViewController = sender.source as? MealViewController, let meal = sourceViewController.meal {
       
-      // Add a new meal.
-      let newIndexPath = IndexPath(row: meals.count, section: 0)
-      
-      meals.append(meal)
-      tableView.insertRows(at: [newIndexPath], with: .automatic)
+      if let selectedIndexPath = tableView.indexPathForSelectedRow {
+        // Update an existing meal.
+        meals[selectedIndexPath.row] = meal
+        tableView.reloadRows(at: [selectedIndexPath], with: .none)
+      }
+      else {
+        // Add a new meal.
+        let newIndexPath = IndexPath(row: meals.count, section: 0)
+        
+        meals.append(meal)
+        tableView.insertRows(at: [newIndexPath], with: .automatic)
+      }
+      // Save the meals.
+      saveMeals()
     }
   }
   
@@ -156,4 +204,19 @@ class MealTableViewController: UITableViewController {
     meals += [meal1, meal2, meal3, meal4, meal5, meal6]
   }
 
+  private func saveMeals() {
+    let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
+    //This logs a debug message to the console if the save succeeds, and an error message to the console if the save fails.
+    if isSuccessfulSave {
+      os_log("Meals successfully saved.", log: OSLog.default, type: .debug)
+    } else {
+      os_log("Failed to save meals...", log: OSLog.default, type: .error)
+    }
+  }
+  
+  private func loadMeals() -> [Meal]? {
+    ///This method attempts to unarchive the object stored at the path Meal.ArchiveURL.path and downcast that object to an array of Meal objects. This code uses the as? operator so that it can return nil if the downcast fails. This failure typically happens because an array has not yet been saved. In this case, the unarchiveObject(withFile:) method returns nil. The attempt to downcast nil to [Meal] also fails, itself returning nil.
+    return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
+  }
+  
 }
