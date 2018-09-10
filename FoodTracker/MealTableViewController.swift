@@ -169,39 +169,46 @@ class MealTableViewController: UITableViewController {
   private func loadSampleMeals() {
     let photo1 = UIImage(named: "brownie")
     let photo2 = UIImage(named: "chickenParm")
-    let photo3 = UIImage(named: "fries")
-    let photo4 = UIImage(named: "funnelCake")
-    let photo5 = UIImage(named: "margarita")
-    let photo6 = UIImage(named: "pizza")
+//    let photo3 = UIImage(named: "fries")
+//    let photo4 = UIImage(named: "funnelCake")
+//    let photo5 = UIImage(named: "margarita")
+//    let photo6 = UIImage(named: "pizza")
 //    let photo7 = UIImage(named: "taco")
 //    let photo8 = UIImage(named: "triple burger")
 //    let photo9 = UIImage(named: "wings")
     
-    guard let meal1 = Meal(name: "Brownie", photo: photo1, rating: 4) else {
+    guard let meal1 = Meal(name: "Brownie", photo: photo1, rating: 4, calories: 400, mealDescription: "So tasty and worth putting on fat!") else {
       fatalError("Unable to instantiate meal1")
     }
     
-    guard let meal2 = Meal(name: "Chicken Parmesan", photo: photo2, rating: 5) else {
-      fatalError("Unable to instantiate meal2")
+    guard let meal2 = Meal(name: "Chicken Parmesan", photo: photo2, rating: 5, calories: 700, mealDescription: "Give me more please!") else {
+      fatalError("Unable to instantiate meal1")
     }
+//    guard let meal1 = Meal(name: "Brownie", photo: photo1, rating: 4) else {
+//      fatalError("Unable to instantiate meal1")
+//    }
+//
+//    guard let meal2 = Meal(name: "Chicken Parmesan", photo: photo2, rating: 5) else {
+//      fatalError("Unable to instantiate meal2")
+//    }
+//
+//    guard let meal3 = Meal(name: "Fries", photo: photo3, rating: 3) else {
+//      fatalError("Unable to instantiate meal2")
+//    }
+//
+//    guard let meal4 = Meal(name: "Funnel Cake", photo: photo4, rating: 4) else {
+//      fatalError("Unable to instantiate meal4")
+//    }
+//
+//    guard let meal5 = Meal(name: "Margarita", photo: photo5, rating: 2) else {
+//      fatalError("Unable to instantiate meal5")
+//    }
+//
+//    guard let meal6 = Meal(name: "Pizza", photo: photo6, rating: 1) else {
+//      fatalError("Unable to instantiate meal6")
+//    }
     
-    guard let meal3 = Meal(name: "Fries", photo: photo3, rating: 3) else {
-      fatalError("Unable to instantiate meal2")
-    }
-    
-    guard let meal4 = Meal(name: "Funnel Cake", photo: photo4, rating: 4) else {
-      fatalError("Unable to instantiate meal4")
-    }
-    
-    guard let meal5 = Meal(name: "Margarita", photo: photo5, rating: 2) else {
-      fatalError("Unable to instantiate meal5")
-    }
-    
-    guard let meal6 = Meal(name: "Pizza", photo: photo6, rating: 1) else {
-      fatalError("Unable to instantiate meal6")
-    }
-    
-    meals += [meal1, meal2, meal3, meal4, meal5, meal6]
+    meals += [meal1, meal2]
   }
 
   private func saveMeals() {

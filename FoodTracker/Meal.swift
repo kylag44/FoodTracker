@@ -18,12 +18,18 @@ class Meal: NSObject, NSCoding {
     static let name = "name"
     static let photo = "photo"
     static let rating = "rating"
+    static let calories = "calories"
+    static let mealDescription = "mealDescription"
   }
   
   ///This code defines the basic properties for the data you need to store. You’re making these variables (var) instead of constants (let) because they’ll need to change throughout the course of a Meal object’s lifetime.
   var name: String
   var photo: UIImage?
   var rating: Int
+  /////added for api assignment
+  var calories: Int
+  var mealDescription: String
+  //////
   
   //MARK: Archiving Paths
   static let DocumentsDirectory = FileManager().urls(for: .documentDirectory, in: .userDomainMask).first!
@@ -31,7 +37,7 @@ class Meal: NSObject, NSCoding {
   
   //MARK: Initialization
   
-  init?(name: String, photo: UIImage?, rating: Int) {
+  init?(name: String, photo: UIImage?, rating: Int, calories: Int, mealDescription: String) {
     // The name must not be empty
     ///A guard statement declares a condition that must be true in order for the code after the guard statement to be executed. If the condition is false, the guard statement’s else branch must exit the current code block (for example, by calling return, break, continue, throw, or a method that doesn’t return like fatalError(_:file:line:)).
     guard !name.isEmpty else {
@@ -45,6 +51,9 @@ class Meal: NSObject, NSCoding {
     self.name = name
     self.photo = photo
     self.rating = rating
+    
+    self.calories = calories
+    self.mealDescription = mealDescription
   }
   
   //MARK: NSCoding
@@ -52,6 +61,9 @@ class Meal: NSObject, NSCoding {
     aCoder.encode(name, forKey: PropertyKey.name)
     aCoder.encode(photo, forKey: PropertyKey.photo)
     aCoder.encode(rating, forKey: PropertyKey.rating)
+    
+    aCoder.encode(calories, forKey: PropertyKey.calories)
+    aCoder.encode(mealDescription, forKey: PropertyKey.mealDescription)
   }
   
   required convenience init?(coder aDecoder: NSCoder) {
@@ -62,11 +74,13 @@ class Meal: NSObject, NSCoding {
     }
     // Because photo is an optional property of Meal, just use conditional cast.
     let photo = aDecoder.decodeObject(forKey: PropertyKey.photo) as? UIImage
-    
     let rating = aDecoder.decodeInteger(forKey: PropertyKey.rating)
-    
+    let calories = aDecoder.decodeInteger(forKey: PropertyKey.calories)
+    guard let mealDescription = aDecoder.decodeObject(forKey: PropertyKey.mealDescription) as? String else {os_log("Unable to decode the meal description for a Meal object.", log: OSLog.default, type: .debug)
+      return nil
+    }
     // Must call designated initializer.
-    self.init(name: name, photo: photo, rating: rating)
+    self.init(name: name, photo: photo, rating: rating, calories: calories, mealDescription: mealDescription)
   }
   
 }
